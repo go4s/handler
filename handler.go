@@ -34,17 +34,18 @@ func Add(r interface {
 		{
 			// standard
 			if handle, found := r.(Watchable); found {
-				api.GET("/events/*id", handle.Watch)
+				api.GET("/events", handle.Watch)
 			}
 			if handle, found := r.(Listable); found {
-				api.GET("/*id", handle.List)
+				api.GET("/", handle.List)
 			}
 			if handle, found := r.(Creatable); found {
-				api.POST("/*id", handle.Create)
+				api.POST("/", handle.Create)
 			}
 			if handle, found := r.(Deletable); found {
-				api.DELETE("/*id", handle.Delete)
+				api.DELETE("/", handle.Delete)
 			}
+
 			// use defiled
 			if handle, found := r.(Customize); found {
 				handle.Raw(g)
