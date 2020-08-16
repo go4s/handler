@@ -25,27 +25,45 @@ func Hook(engine gin.IRouter) {
 	}
 }
 
+type Grouper interface {
+	Singular() string
+	Plural() string
+}
+
 func Add(r interface {
 	Version
 	Group
 }) {
 	registers = append(registers, func(g gin.IRouter) {
-		api := g.Group(fmt.Sprintf("api/%s/%s", r.Version(), r.Group()))
+		api := g.Group(fmt.Sprintf("api/%s", r.Version()))
 		{
-			// standard
-			if handle, found := r.(Watchable); found {
-				api.GET("/events", handle.Watch)
+			{
+				// create
+				if handle, found := r.(Creatable); found {
+					api.POST(fmt.Sprintf("%s", r.Group().Singular()), handle.Create)
+					api.POST(fmt.Sprintf("%s/:id", r.Group().Plural()), handle.Create)
+				}
 			}
-			if handle, found := r.(Listable); found {
-				api.GET("/", handle.List)
+			{
+				// delete
+				if handle, found := r.(Deletable); found {
+					api.DELETE(fmt.Sprintf("%s/:id", r.Group().Plural()), handle.Delete)
+				}
 			}
-			if handle, found := r.(Creatable); found {
-				api.POST("/", handle.Create)
+			{
+				// list
+				if handle, found := r.(Listable); found {
+					api.GET(fmt.Sprintf("%s", r.Group().Singular()), handle.List)
+					api.GET(fmt.Sprintf("%s/:id", r.Group().Plural()), handle.List)
+				}
 			}
-			if handle, found := r.(Deletable); found {
-				api.DELETE("/", handle.Delete)
+			{
+				// watch
+				if handle, found := r.(Watchable); found {
+					api.GET(fmt.Sprintf("%s/events", r.Group().Singular()), handle.Watch)
+					api.GET(fmt.Sprintf("%s/:id/events", r.Group().Plural()), handle.Watch)
+				}
 			}
-
 			// use defiled
 			if handle, found := r.(Customize); found {
 				handle.Raw(g)
@@ -58,7 +76,7 @@ type Version interface {
 	Version() string
 }
 type Group interface {
-	Group() string
+	Group() Grouper
 }
 type Watchable interface {
 	Watch(*gin.Context)
