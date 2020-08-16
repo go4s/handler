@@ -40,28 +40,28 @@ func Add(r interface {
 			{
 				// create
 				if handle, found := r.(Creatable); found {
-					api.POST(fmt.Sprintf("%s", r.Group().Singular()), handle.Create)
-					api.POST(fmt.Sprintf("%s/:id", r.Group().Plural()), handle.Create)
+					api.POST(fmt.Sprintf("%s", r.Group().Plural()), handle.Create)
+					api.POST(fmt.Sprintf("%s/:id", r.Group().Singular()), handle.Create)
 				}
 			}
 			{
 				// delete
 				if handle, found := r.(Deletable); found {
-					api.DELETE(fmt.Sprintf("%s/:id", r.Group().Plural()), handle.Delete)
+					api.DELETE(fmt.Sprintf("%s/:id", r.Group().Singular()), handle.Delete)
 				}
 			}
 			{
 				// list
 				if handle, found := r.(Listable); found {
-					api.GET(fmt.Sprintf("%s", r.Group().Singular()), handle.List)
-					api.GET(fmt.Sprintf("%s/:id", r.Group().Plural()), handle.List)
+					api.GET(fmt.Sprintf("%s", r.Group().Plural()), handle.List)
+					api.GET(fmt.Sprintf("%s/:id", r.Group().Singular()), handle.List)
 				}
 			}
 			{
 				// watch
 				if handle, found := r.(Watchable); found {
-					api.GET(fmt.Sprintf("%s/events", r.Group().Singular()), handle.Watch)
-					api.GET(fmt.Sprintf("%s/:id/events", r.Group().Plural()), handle.Watch)
+					api.GET(fmt.Sprintf("%s/events", r.Group().Plural()), handle.Watch)
+					api.GET(fmt.Sprintf("%s/:id/events", r.Group().Singular()), handle.Watch)
 				}
 			}
 			// use defiled
