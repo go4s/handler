@@ -25,15 +25,17 @@ func Hook(engine gin.IRouter) {
 	}
 }
 
+type Router interface {
+	Version
+	Group
+}
+
 type Grouper interface {
 	Singular() string
 	Plural() string
 }
 
-func Add(r interface {
-	Version
-	Group
-}) {
+func Add(r Router) {
 	registers = append(registers, func(g gin.IRouter) {
 		api := g.Group(fmt.Sprintf("api/%s", r.Version()))
 		{
