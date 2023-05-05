@@ -2,8 +2,9 @@ package handler
 
 import (
     "fmt"
-    "github.com/gin-gonic/gin"
     "sync"
+    
+    "github.com/gin-gonic/gin"
 )
 
 type Register func(gin.IRouter)
@@ -38,10 +39,10 @@ func Add(r Router) {
         api := g.Group(fmt.Sprintf("api/%s", r.Version()))
         {
             {
-                // create
-                if handle, found := r.(Creatable); found {
-                    api.POST(fmt.Sprintf("%s", r.Group().Plural()), handle.Create)
-                    api.POST(fmt.Sprintf("%s/:id", r.Group().Singular()), handle.Create)
+                // update
+                if handle, found := r.(Updatable); found {
+                    api.POST(fmt.Sprintf("%s", r.Group().Plural()), handle.Update)
+                    api.POST(fmt.Sprintf("%s/:id", r.Group().Singular()), handle.Update)
                 }
             }
             {
