@@ -32,6 +32,9 @@ type Router interface {
 
 func Add(r Router) {
     registers = append(registers, func(g gin.IRouter) {
+        if specifier, support := r.(PrefixSpecifier); support {
+            g = g.Group(specifier.Prefix())
+        }
         api := g.Group(fmt.Sprintf("api/%s", r.Version()))
         {
             {
@@ -98,6 +101,9 @@ type (
 )
 
 type (
+    PrefixSpecifier interface {
+        Prefix() string
+    }
     Grouper interface {
         Singular() string
         Plural() string
