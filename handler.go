@@ -31,6 +31,52 @@ type Router interface {
     Group
 }
 
+func AddWithMiddleware(r Router, middlewares ...gin.HandlerFunc) {
+    registers = append(registers, func(engine gin.IRouter) {
+        var (
+            g = engine
+        )
+        if specifier, support := r.(PrefixSpecifier); support {
+            g = g.Group(specifier.Prefix())
+        }
+        api := g.Group(fmt.Sprintf("api/%s", r.Version()))
+        {
+            {
+                // update
+                if handle, found := r.(Updatable); found {
+                    chains := append(middlewares, handle.Update)
+                    api.POST(fmt.Sprintf("%s", r.Group().Plural()), chains...)
+                    api.POST(fmt.Sprintf("%s/:id", r.Group().Singular()), chains...)
+                }
+            }
+            {
+                // create
+                if handle, found := r.(Creatable); found {
+                    chains := append(middlewares, handle.Create)
+                    api.PUT(fmt.Sprintf("%s", r.Group().Plural()), chains...)
+                    api.PUT(fmt.Sprintf("%s/:id", r.Group().Singular()), chains...)
+                }
+            }
+            {
+                // delete
+                if handle, found := r.(Deletable); found {
+                    chains := append(middlewares, handle.Delete)
+                    api.DELETE(fmt.Sprintf("%s", r.Group().Singular()), chains...)
+                    api.DELETE(fmt.Sprintf("%s/:id", r.Group().Singular()), chains...)
+                }
+            }
+            {
+                // list
+                if handle, found := r.(Listable); found {
+                    chains := append(middlewares, handle.List)
+                    api.GET(fmt.Sprintf("%s", r.Group().Plural()), chains...)
+                    api.GET(fmt.Sprintf("%s/:id", r.Group().Singular()), chains...)
+                }
+            }
+        }
+    })
+}
+
 func Add(r Router) {
     registers = append(registers, func(g gin.IRouter) {
         if specifier, support := r.(PrefixSpecifier); support {
